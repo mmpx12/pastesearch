@@ -22,6 +22,7 @@ output:
 exit 1
 }
 
+res=""
 if [[ ${#@} > 1 ]]; then
   while [ "$1" != "" ]; do
     case $1 in
@@ -69,7 +70,6 @@ else
   usage
 fi
 
-res=""
 
 [[ $search == true ]] && res="$(curl -s "https://psbdmp.ws/api/search/$search_query" | jq -r '.data[] | [.id +"@"+ if .tags == "" then "none" else .tags end + "@" + .time] |@tsv')"
 
@@ -85,6 +85,11 @@ res=""
 [[ $firefox == true && $(wc -l <<<"$res") -lt  15 ]] && ff="firefox"
 [[ $firefox == true ]] || ff=""
 [[ $save == true && ! -d "$save_dir" ]] && mkdir -p "$save_dir"
+
+if [ -z "$res" ]; then 
+  echo -e "\e[31mNo paste found ..."
+  exit 0
+fi
 
 while IFS= read -r line; do
   [[ ${#line} == 0 ]] && continue

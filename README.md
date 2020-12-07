@@ -18,7 +18,7 @@ usage:
    -f, --firefox                Open paste in firefox (if result < 20)
 ```
 
-- if paste exist it will be print in blue in the output
-- if not paste will be print and red and will no be saved or open in firefox
+- If paste exist it will be print in blue in the output.
+- If paste was deleted or expired it will be print in red and will not be saved or open in firefox.
 
 ![img](out.png) 
