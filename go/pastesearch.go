@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/itchyny/gojq"
-	"github.com/speedata/optionparser"
+	"github.com/mmpx12/optionparser"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -133,50 +133,32 @@ func GetPaste(paste string) {
 }
 
 func ArgsParse() {
-	switch len(os.Args) {
-	case 1:
-		help()
-	case 2:
+	if len(os.Args) == 2 && os.Args[1] != "-h" && os.Args[1] != "--help" {
 		search = os.Args[1]
 		return
 	}
 	op := optionparser.NewOptionParser()
-	op.On("-s", "--search search", "", &search)
-	op.On("-S", "--searchv2 searchv2", "", &searchv2)
-	op.On("-m", "--mail mail", "", &mail)
-	op.On("-d", "--domain domain", "", &domain)
-	op.On("-b", "--browser", "", &browser)
-	op.On("-o", "--save save", "", &save)
-	op.On("-p", "--prefix prefix", "", &prefix)
-	op.On("-x", "--slow", "", &slow)
-	op.On("-h", "--help", "", help)
+	op.Banner = "Pastebin searcher\n\nUsage:"
+	op.On("-s", "--search QUERY", "General search on pastebin", &search)
+	op.On("-S", "--searchv2 QUERY", "Same as -s but with api v2", &searchv2)
+	op.On("-m", "--mail MAIL", "Search for emails", &mail)
+	op.On("-d", "--domain DOMAIN", "Search specific domain", &domain)
+	op.On("-b", "--browser", "Open paste in browser (if result < 20)", &browser)
+	op.On("-o", "--save DIRECTORY", "Save paste into directory", &save)
+	op.On("-p", "--prefix PREFIX", "Prefix when save paste", &prefix)
+	op.On("-x", "--slow", "Avoid triggering captcha (lot slower)", &slow)
+	op.Exemple("pastesearch whatever")
+	op.Exemple("pastesearch -s whatever -o outputdir -x -b")
+	op.Exemple("Output:")
+	op.Exemple("  \033[32m[\033[31m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m] : Paste was removed")
+	op.Exemple("  \033[32m[\033[36m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m] : Paste exists")
+	op.Exemple("  \033[32m[\033[35m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m] : blocked by Captcha")
+	op.Exemple("Some paste also have tags:")
+	op.Exemple("  -→\033[32m[\033[35m$TAGS\033[32m]")
 	op.Parse()
 	if save != "" {
 		if _, err := os.Stat(save); os.IsNotExist(err) {
 			os.Mkdir(save, 0777)
 		}
 	}
-
-}
-
-func help() {
-	fmt.Println(`pastebin searcher
-
-usage:
-   -s, --search [QUERY]        General search on pastebin
-   -S, --searchv2 [QUERY]      Same as -s but with api v2
-   -m, --mail [EMAIL]          Search for emails 
-   -d, --domain [DOMAIN]       Search specific domain
-   -o, --save [DIRECTORY ]     Save paste into directory
-   -p, --prefix [PREFIX]       Prefix when save paste
-   -b, --browser               Open paste in browser (if result < 20)
-   -x, --slow                  Avoid triggering captcha (lot slower)
-
-output:`)
-	fmt.Println("  \033[32m[\033[31m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m] : Paste was removed")
-	fmt.Println("  \033[32m[\033[36m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m] : Paste exists")
-	fmt.Println("  \033[32m[\033[35m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m] : blocked by Captcha")
-	fmt.Println("Some paste also have tags:")
-	fmt.Println("  -→\033[32m[\033[35m$TAGS\033[32m]")
-	os.Exit(1)
 }
