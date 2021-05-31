@@ -149,16 +149,21 @@ func ArgsParse() {
 	op.On("-x", "--slow", "Avoid triggering captcha (lot slower)", &slow)
 	op.Exemple("pastesearch whatever")
 	op.Exemple("pastesearch -s whatever -o outputdir -x -b")
-	op.Exemple("Output:")
-	op.Exemple("  \033[32m[\033[31m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m] : Paste was removed")
-	op.Exemple("  \033[32m[\033[36m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m] : Paste exists")
-	op.Exemple("  \033[32m[\033[35m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m] : blocked by Captcha")
-	op.Exemple("Some paste also have tags:")
-	op.Exemple("  -→\033[32m[\033[35m$TAGS\033[32m]")
+	op.Output("-Paste Exist")
+	op.Output("   \033[32m[\033[36m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m]")
+	op.Output("-Paste was remove")
+	op.Output("   \033[32m[\033[31m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m]")
+	op.Output("-Paste forbidden (private or captcha)")
+	op.Output("   \033[32m[\033[35m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m]")
+	op.Output("-Some paste also have tags:")
+	op.Output("   -→\033[32m[\033[35m$TAGS\033[32m]")
 	op.Parse()
 	if save != "" {
 		if _, err := os.Stat(save); os.IsNotExist(err) {
 			os.Mkdir(save, 0777)
 		}
+	}
+	if len(os.Args) == 1 {
+		op.Help()
 	}
 }
