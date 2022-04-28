@@ -3,8 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/itchyny/gojq"
-	"github.com/mmpx12/optionparser"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -14,17 +12,20 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/itchyny/gojq"
+	"github.com/mmpx12/optionparser"
 )
 
 var search, searchv2, save, prefix, mail, domain string
-var browser, slow bool
+var browser, fast bool
 var wg sync.WaitGroup
 
 func main() {
 	ArgsParse()
 	paste := Parse(Search())
 	for _, i := range paste {
-		if !slow {
+		if fast {
 			wg.Add(1)
 			go GetPaste(i)
 		} else {
@@ -32,7 +33,7 @@ func main() {
 			time.Sleep(300 * time.Millisecond)
 		}
 	}
-	if !slow {
+	if fast {
 		wg.Wait()
 	}
 }
@@ -102,7 +103,7 @@ func OpenBrowser(url string) {
 }
 
 func GetPaste(paste string) {
-	if !slow {
+	if fast {
 		defer wg.Done()
 	}
 	detail := strings.Split(strings.TrimSuffix(paste, "\n"), "@")
@@ -146,17 +147,18 @@ func ArgsParse() {
 	op.On("-b", "--browser", "Open paste in browser (if result < 20)", &browser)
 	op.On("-o", "--save DIRECTORY", "Save paste into directory", &save)
 	op.On("-p", "--prefix PREFIX", "Prefix when save paste", &prefix)
-	op.On("-x", "--slow", "Avoid triggering captcha (lot slower)", &slow)
+	op.On("-f", "--fast", "faster but will triggering captcha", &fast)
 	op.Exemple("pastesearch whatever")
+	op.Exemple("pastesearch --fast whatever")
 	op.Exemple("pastesearch -s whatever -o outputdir -x -b")
 	op.Output("-Paste Exist")
-	op.Output("   \033[32m[\033[36m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m]")
+	op.Output("   \033[32m[\033[36m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m]\033[0m")
 	op.Output("-Paste was remove")
-	op.Output("   \033[32m[\033[31m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m]")
+	op.Output("   \033[32m[\033[31m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m]\033[0m")
 	op.Output("-Paste forbidden (private or captcha)")
-	op.Output("   \033[32m[\033[35m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m]")
+	op.Output("   \033[32m[\033[35m$LINK\033[32m]-→\033[32m[\033[33m$DATE\033[32m]\033[0m")
 	op.Output("-Some paste also have tags:")
-	op.Output("   -→\033[32m[\033[35m$TAGS\033[32m]")
+	op.Output("   \033[32m-→\033[32m[\033[35m$TAGS\033[32m]\033[0m")
 	op.Parse()
 	if save != "" {
 		if _, err := os.Stat(save); os.IsNotExist(err) {
@@ -165,5 +167,8 @@ func ArgsParse() {
 	}
 	if len(os.Args) == 1 {
 		op.Help()
+	}
+	if search == "" && searchv2 == "" && mail == "" && domain == "" {
+		search = os.Args[len(os.Args)-1]
 	}
 }

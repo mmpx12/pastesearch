@@ -1,5 +1,5 @@
 build:
-	go build -ldflags="-w -s"
+	go build -ldflags="-w -s" -buildvcs=false
 
 install:
 	mv pastesearch /usr/bin/pastesearch

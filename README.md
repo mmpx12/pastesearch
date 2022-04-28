@@ -18,7 +18,7 @@ usage:
    -b, --browser                Open paste in browser (if result < 20)
 
    // only for go
-   -x, --slow                   Don't use goroutine (slower / less risk of triggering captcha)
+   -f, --fast                   Use goroutine (Faster but can triggering captcha)
 ```
 
 - If paste exist it will be print in blue in the output.
@@ -28,14 +28,6 @@ usage:
 ![img](out.png) 
 
 # GO version 
-
-### WARNINGS:
-
-Since it's using goroutine for retrive the paste, dont using it to much in a short period of time or you will be block by captcha.
-
-If you have lot of stuff to check use the bash version, it will be more than 30 time slower than the go version, but you will not have to worry about triggering captcha.
-
-You can alse use the flag `-x|--slow` instead of the bash version
 
 
 Build:
@@ -74,9 +66,6 @@ make termux-clean
 ```
 
 ### bash 
-
-
-Lot slower than the go version but more safe (you will not trigger captcha).
 
 ### Install 
 
